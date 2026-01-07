@@ -1,3 +1,4 @@
+
 import { doc, setDoc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import type { User } from "firebase/auth";
 import { db } from "./firebase";
@@ -9,12 +10,12 @@ import { FirestorePermissionError } from "@/firebase/errors";
 // or in dedicated service files that use the new `useFirestore` hooks.
 
 export function createUserProfile(user: User): void {
-  const userProfileRef = doc(db, "users", user.uid, "profiles", "main");
+  const userProfileRef = doc(db, "users", user.uid, "userProfiles", user.uid);
   const userProfile: UserProfile = {
     uid: user.uid,
     email: user.email!,
     phase: null,
-    userId: user.uid, // Ensure userId is included for security rules
+    userId: user.uid,
   };
 
   setDoc(userProfileRef, userProfile).catch(error => {
@@ -30,7 +31,7 @@ export function createUserProfile(user: User): void {
 }
 
 export async function getUserProfile(uid: string): Promise<UserProfile | null> {
-  const userProfileRef = doc(db, "users", uid, "profiles", "main");
+  const userProfileRef = doc(db, "users", uid, "userProfiles", uid);
   try {
     const docSnap = await getDoc(userProfileRef);
     if (docSnap.exists()) {
@@ -49,7 +50,7 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
 }
 
 export function updateUserProfile(uid: string, data: Partial<UserProfile>): void {
-    const userProfileRef = doc(db, "users", uid, "profiles", "main");
+    const userProfileRef = doc(db, "users", uid, "userProfiles", uid);
     const updateData = {
         ...data,
         updatedAt: serverTimestamp(),
