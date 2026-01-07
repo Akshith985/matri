@@ -3,10 +3,10 @@
 // You can find this configuration in your Firebase project settings.
 
 export const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: "AIzaSyBJMhLrl5wVn6dtjxja2JSUzrdVeQIR-Pg",
+  authDomain: "studio-8348145171-9cc8d.firebaseapp.com",
+  projectId: "studio-8348145171-9cc8d",
+  storageBucket: "studio-8348145171-9cc8d.appspot.com",
+  messagingSenderId: "767095316248",
+  appId: "1:767095316248:web:dace0a2ca2bdfc4f07c86d",
 };
