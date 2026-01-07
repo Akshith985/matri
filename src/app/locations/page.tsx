@@ -4,30 +4,30 @@ import Header from "@/components/shared/Header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MapPin, Phone } from "lucide-react";
-import Image from "next/image";
 
 const locations = [
   {
     name: "BloomCare Wellness Center",
     address: "123 Blossom Lane, Harmony City, 45678",
     phone: "(555) 123-4567",
-    mapImage: "https://picsum.photos/seed/location1/600/400"
   },
   {
     name: "Serenity Prenatal Clinic",
     address: "456 Tranquil Ave, Meadowbrook, 12345",
     phone: "(555) 987-6543",
-    mapImage: "https://picsum.photos/seed/location2/600/400"
   },
   {
     name: "The Mother-Baby Hub",
     address: "789 Nurture Rd, Sunnyside, 87654",
     phone: "(555) 246-8135",
-    mapImage: "https://picsum.photos/seed/location3/600/400"
   },
 ];
 
 export default function LocationsPage() {
+  const getMapEmbedUrl = (address: string) => {
+    return `https://maps.google.com/maps?q=${encodeURIComponent(address)}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
+  };
+
   return (
     <>
       <Header />
@@ -39,14 +39,18 @@ export default function LocationsPage() {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {locations.map((location) => (
             <Card key={location.name} className="flex flex-col">
-              <div className="relative w-full h-48">
-                <Image
-                  src={location.mapImage}
-                  alt={`Map for ${location.name}`}
-                  fill
-                  className="object-cover rounded-t-lg"
-                  data-ai-hint="map city"
-                />
+              <div className="relative w-full h-64">
+                <iframe
+                  src={getMapEmbedUrl(location.address)}
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen={false}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="rounded-t-lg"
+                  title={`Map for ${location.name}`}
+                ></iframe>
               </div>
               <CardHeader>
                 <CardTitle className="font-headline">{location.name}</CardTitle>
@@ -62,7 +66,13 @@ export default function LocationsPage() {
                     <p>{location.phone}</p>
                   </div>
                 </div>
-                <Button variant="outline" className="w-full mt-4">Get Directions</Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full mt-4"
+                  onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location.address)}`, "_blank")}
+                >
+                  Get Directions
+                </Button>
               </CardContent>
             </Card>
           ))}
