@@ -4,7 +4,7 @@ import { AuthProvider } from '@/context/AuthContext';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'BloomCare',
+  title: 'matri',
   description: 'Your personal companion for a healthy pregnancy journey.',
 };
 

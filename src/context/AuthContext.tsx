@@ -30,16 +30,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      const storedUser = localStorage.getItem("bloomcare.user");
-      const storedProfile = localStorage.getItem("bloomcare.profile");
+      const storedUser = localStorage.getItem("matri.user");
+      const storedProfile = localStorage.getItem("matri.profile");
       if (storedUser && storedProfile) {
         setUser(JSON.parse(storedUser));
         setUserProfile(JSON.parse(storedProfile));
       }
     } catch (error) {
         console.error("Failed to parse from localStorage", error);
-        localStorage.removeItem("bloomcare.user");
-        localStorage.removeItem("bloomcare.profile");
+        localStorage.removeItem("matri.user");
+        localStorage.removeItem("matri.profile");
     }
     setLoading(false);
   }, []);
@@ -51,7 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Check if a profile already exists to persist it across logins
     let existingProfile = null;
     try {
-        const storedProfile = localStorage.getItem("bloomcare.profile");
+        const storedProfile = localStorage.getItem("matri.profile");
         if (storedProfile) {
             const parsed = JSON.parse(storedProfile);
             if(parsed.email === email) {
@@ -64,8 +64,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const mockProfile = existingProfile || { uid: mockUser.uid, email, displayName: null, phase: null };
     
-    localStorage.setItem("bloomcare.user", JSON.stringify(mockUser));
-    localStorage.setItem("bloomcare.profile", JSON.stringify(mockProfile));
+    localStorage.setItem("matri.user", JSON.stringify(mockUser));
+    localStorage.setItem("matri.profile", JSON.stringify(mockProfile));
 
     setUser(mockUser);
     setUserProfile(mockProfile);
@@ -77,8 +77,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const mockUser = { email, uid: `mock-uid-${Date.now()}` };
     const mockProfile = { uid: mockUser.uid, email, displayName: null, phase: null };
     
-    localStorage.setItem("bloomcare.user", JSON.stringify(mockUser));
-    localStorage.setItem("bloomcare.profile", JSON.stringify(mockProfile));
+    localStorage.setItem("matri.user", JSON.stringify(mockUser));
+    localStorage.setItem("matri.profile", JSON.stringify(mockProfile));
 
     setUser(mockUser);
     setUserProfile(mockProfile);
@@ -86,9 +86,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setLoading(true);
-    localStorage.removeItem("bloomcare.user");
+    localStorage.removeItem("matri.user");
     // We can choose to remove the profile or not. For a better UX, we can keep it.
-    // localStorage.removeItem("bloomcare.profile");
+    // localStorage.removeItem("matri.profile");
     setUser(null);
     // setUserProfile(null); // Keep profile info for when they log back in
     setLoading(false);
@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const updateProfile = (data: { phase: PregnancyPhase, displayName: string }) => {
     if (userProfile) {
       const updatedProfile = { ...userProfile, ...data };
-      localStorage.setItem("bloomcare.profile", JSON.stringify(updatedProfile));
+      localStorage.setItem("matri.profile", JSON.stringify(updatedProfile));
       setUserProfile(updatedProfile);
     }
   };

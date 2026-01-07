@@ -86,7 +86,7 @@ export default function ProfilePage() {
       <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center p-4">
         <Card className="w-full max-w-md shadow-lg">
           <CardHeader>
-            <CardTitle className="text-2xl font-headline">Welcome to BloomCare!</CardTitle>
+            <CardTitle className="text-2xl font-headline">Welcome to matri!</CardTitle>
             <CardDescription>
               To get started, please tell us your name and select your current phase. This will help us personalize your experience.
             </CardDescription>

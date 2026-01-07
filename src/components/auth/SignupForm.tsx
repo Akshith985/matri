@@ -38,7 +38,7 @@ export default function SignupForm() {
             createUser(values.email);
             toast({
                 title: "Account Created",
-                description: "Welcome to BloomCare! Let's set up your profile.",
+                description: "Welcome to matri! Let's set up your profile.",
             });
             // Navigation will be handled by the signup page's useEffect
         } catch (error: any) {

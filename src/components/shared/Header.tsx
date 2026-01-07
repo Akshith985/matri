@@ -30,7 +30,7 @@ export default function Header() {
       <div className="container flex h-14 items-center">
         <div className="mr-4 flex">
           <Link className="mr-6 flex items-center space-x-2" href="/">
-            <span className="font-bold font-headline text-2xl text-primary">BloomCare</span>
+            <span className="font-bold font-headline text-2xl text-primary">matri</span>
           </Link>
           <nav className="hidden md:flex items-center space-x-4 text-sm font-medium">
             <Link href="/dashboard" className="text-foreground/70 hover:text-foreground">
