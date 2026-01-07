@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -9,7 +10,7 @@ import type { PregnancyPhase } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin } from "lucide-react";
+import { Calendar, MapPin, ShieldAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function DashboardClient() {
@@ -48,7 +49,7 @@ export default function DashboardClient() {
             </CardHeader>
           </Card>
           
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-3 gap-8">
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 font-headline">
@@ -71,6 +72,18 @@ export default function DashboardClient() {
               <CardContent>
                 <p className="text-muted-foreground mb-4">Locate hospitals and clinics near you.</p>
                 <Button onClick={() => router.push('/locations')}>Find Locations</Button>
+              </CardContent>
+            </Card>
+             <Card className="border-destructive/50 hover:shadow-md transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 font-headline text-destructive">
+                  <ShieldAlert />
+                  Emergency
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground mb-4">Get immediate access to emergency services.</p>
+                <Button variant="destructive" onClick={() => router.push('/emergency')}>Get Help Now</Button>
               </CardContent>
             </Card>
           </div>

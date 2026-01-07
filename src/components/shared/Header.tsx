@@ -1,7 +1,8 @@
+
 "use client";
 
 import Link from "next/link";
-import { LogOut, User as UserIcon, Calendar, MapPin } from "lucide-react";
+import { LogOut, User as UserIcon, Calendar, MapPin, ShieldAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,9 @@ export default function Header() {
             <Link href="/locations" className="text-foreground/70 hover:text-foreground">
               Find Care
             </Link>
+            <Link href="/emergency" className="text-destructive/70 hover:text-destructive font-semibold">
+              Emergency
+            </Link>
           </nav>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-2">
@@ -71,6 +75,10 @@ export default function Header() {
                 <DropdownMenuItem onClick={() => router.push('/locations')}>
                   <MapPin className="mr-2 h-4 w-4" />
                   <span>Find Care</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push('/emergency')} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                  <ShieldAlert className="mr-2 h-4 w-4" />
+                  <span>Emergency</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut}>
