@@ -1,0 +1,129 @@
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a user's profile information within the BloomCare application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserProfile entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the Firebase Authentication user ID. (Relationship: User 1:1 UserProfile)"
+        },
+        "email": {
+          "type": "string",
+          "description": "User's email address.",
+          "format": "email"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "User's display name."
+        },
+        "pregnancyPhase": {
+          "type": "string",
+          "description": "The current pregnancy phase of the user (Pre, During, Post)."
+        },
+        "healthDashboardId": {
+          "type": "string",
+          "description": "Reference to HealthDashboard. (Relationship: UserProfile 1:1 HealthDashboard)"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "email",
+        "displayName",
+        "pregnancyPhase",
+        "healthDashboardId"
+      ]
+    },
+    "HealthDashboard": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "HealthDashboard",
+      "type": "object",
+      "description": "Represents a user's health dashboard, containing key health metrics and information.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the HealthDashboard entity."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:1 HealthDashboard)"
+        },
+        "weight": {
+          "type": "number",
+          "description": "User's weight."
+        },
+        "bloodPressure": {
+          "type": "string",
+          "description": "User's blood pressure reading."
+        },
+        "dueDate": {
+          "type": "string",
+          "description": "User's due date (if applicable).",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userProfileId"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}/userProfiles/{userProfileId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores user profile information, owned by the user. Includes the healthDashboardId for direct access to associated health data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The Firebase Authentication user ID."
+            },
+            {
+              "name": "userProfileId",
+              "description": "The unique ID of the user profile document."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/healthDashboards/{healthDashboardId}",
+        "definition": {
+          "entityName": "HealthDashboard",
+          "schema": {
+            "$ref": "#/backend/entities/HealthDashboard"
+          },
+          "description": "Stores health dashboard data associated with a user profile, owned by the user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The Firebase Authentication user ID."
+            },
+            {
+              "name": "healthDashboardId",
+              "description": "The unique ID of the health dashboard document."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to manage user profiles and health dashboards within the BloomCare application. It prioritizes authorization independence by storing all user-related data under the `/users/{userId}` path, ensuring that access control can be enforced based on the authenticated user's ID without needing to traverse or 'get' data from other collections. This approach avoids hierarchical authorization dependencies, enabling atomic operations and simplifying security rules.  Each `userProfile` contains the `healthDashboardId` for direct access to its associated health data. This strategy promotes data locality and reduces query complexity. The structure uses path-based ownership (`/users/{userId}/userProfiles/{userProfileId}`) to clearly define ownership and enable simple, robust security rules. This structure effectively supports QAPs by isolating user data, ensuring that listing operations can be securely performed within each user's data scope. There is a 1:1 relationship between users, profiles and health dashboards and the data is namespaced for each user."
+  }
+}
