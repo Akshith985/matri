@@ -42,7 +42,7 @@ export default function DashboardClient() {
           <Card className="bg-primary/10 border-primary/20">
             <CardHeader>
               <h1 className="text-3xl md:text-4xl font-bold font-headline text-primary-foreground">
-                Welcome, {user?.email}!
+                Welcome, {userProfile?.displayName ?? user?.email}!
               </h1>
               <p className="text-primary-foreground/80">Here's your personalized space for a healthy journey.</p>
             </CardHeader>

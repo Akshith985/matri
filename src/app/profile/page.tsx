@@ -11,31 +11,46 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import Header from "@/components/shared/Header";
 
 const profileSchema = z.object({
+  displayName: z.string().min(2, { message: "Name must be at least 2 characters." }),
   phase: z.enum(pregnancyPhases, {
     required_error: "You need to select a pregnancy phase.",
   }),
 });
 
 export default function ProfilePage() {
-  const { user, userProfile, loading: authLoading, updatePhase } = useAuth();
+  const { user, userProfile, loading: authLoading, updateProfile } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
+    defaultValues: {
+      displayName: userProfile?.displayName ?? "",
+      phase: userProfile?.phase ?? undefined,
+    }
   });
+  
+  useEffect(() => {
+    if (userProfile) {
+      form.reset({
+        displayName: userProfile.displayName ?? "",
+        phase: userProfile.phase ?? undefined,
+      });
+    }
+  }, [userProfile, form]);
 
   useEffect(() => {
     if (!authLoading && !user) {
       router.replace("/login");
     }
-    if (!authLoading && user && userProfile?.phase) {
+    if (!authLoading && user && userProfile?.phase && userProfile?.displayName) {
       router.replace('/dashboard');
     }
   }, [user, userProfile, authLoading, router]);
@@ -44,7 +59,10 @@ export default function ProfilePage() {
     if (!user) return;
     setIsSubmitting(true);
     
-    updatePhase(data.phase as PregnancyPhase);
+    updateProfile({
+      displayName: data.displayName,
+      phase: data.phase as PregnancyPhase
+    });
     
     toast({
       title: "Profile Updated!",
@@ -70,12 +88,25 @@ export default function ProfilePage() {
           <CardHeader>
             <CardTitle className="text-2xl font-headline">Welcome to BloomCare!</CardTitle>
             <CardDescription>
-              To get started, please select your current phase. This will help us personalize your experience.
+              To get started, please tell us your name and select your current phase. This will help us personalize your experience.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="displayName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Your Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. Jane Doe" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="phase"

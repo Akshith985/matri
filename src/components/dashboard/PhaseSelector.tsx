@@ -13,7 +13,7 @@ interface PhaseSelectorProps {
 }
 
 export default function PhaseSelector({ currentPhase, onPhaseChange }: PhaseSelectorProps) {
-  const { updatePhase } = useAuth();
+  const { userProfile, updateProfile } = useAuth();
   const { toast } = useToast();
   const [localPhase, setLocalPhase] = useState(currentPhase);
 
@@ -21,8 +21,12 @@ export default function PhaseSelector({ currentPhase, onPhaseChange }: PhaseSele
     const newPhase = phase as PregnancyPhase;
     setLocalPhase(newPhase);
 
-    // Update phase in mock auth context
-    updatePhase(newPhase);
+    if (userProfile?.displayName) {
+        updateProfile({
+            phase: newPhase,
+            displayName: userProfile.displayName
+        });
+    }
 
     onPhaseChange(newPhase); // Notify parent component optimistically
     

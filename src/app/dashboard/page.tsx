@@ -14,7 +14,7 @@ export default function DashboardPage() {
     if (!loading) {
       if (!user) {
         router.replace("/login");
-      } else if (!userProfile?.phase) {
+      } else if (!userProfile?.phase || !userProfile?.displayName) {
         router.replace("/profile");
       }
     }
@@ -28,7 +28,7 @@ export default function DashboardPage() {
     );
   }
 
-  if (!userProfile?.phase) {
+  if (!userProfile?.phase || !userProfile?.displayName) {
     return (
         <div className="flex h-screen w-full items-center justify-center bg-background">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />

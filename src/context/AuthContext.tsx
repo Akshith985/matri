@@ -9,7 +9,7 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string) => void;
   logout: () => void;
-  updatePhase: (phase: PregnancyPhase) => void;
+  updateProfile: (data: { phase: PregnancyPhase, displayName: string }) => void;
   createUser: (email: string) => void;
 }
 
@@ -19,7 +19,7 @@ export const AuthContext = createContext<AuthContextType>({
   loading: true,
   login: () => {},
   logout: () => {},
-  updatePhase: () => {},
+  updateProfile: () => {},
   createUser: () => {},
 });
 
@@ -47,7 +47,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = (email: string) => {
     setLoading(true);
     const mockUser = { email, uid: `mock-uid-${Date.now()}` };
-    const mockProfile = { email, uid: mockUser.uid, phase: null };
+    
+    // Check if a profile already exists to persist it across logins
+    let existingProfile = null;
+    try {
+        const storedProfile = localStorage.getItem("bloomcare.profile");
+        if (storedProfile) {
+            const parsed = JSON.parse(storedProfile);
+            if(parsed.email === email) {
+                existingProfile = parsed;
+            }
+        }
+    } catch (e) {
+        // ignore
+    }
+
+    const mockProfile = existingProfile || { uid: mockUser.uid, email, displayName: null, phase: null };
     
     localStorage.setItem("bloomcare.user", JSON.stringify(mockUser));
     localStorage.setItem("bloomcare.profile", JSON.stringify(mockProfile));
@@ -58,28 +73,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
   
   const createUser = (email: string) => {
-    // In this mock version, creating a user is the same as logging in.
-    login(email);
+    // In this mock version, creating a user is the same as logging in, but we ensure no old profile is kept.
+    const mockUser = { email, uid: `mock-uid-${Date.now()}` };
+    const mockProfile = { uid: mockUser.uid, email, displayName: null, phase: null };
+    
+    localStorage.setItem("bloomcare.user", JSON.stringify(mockUser));
+    localStorage.setItem("bloomcare.profile", JSON.stringify(mockProfile));
+
+    setUser(mockUser);
+    setUserProfile(mockProfile);
   }
 
   const logout = () => {
     setLoading(true);
     localStorage.removeItem("bloomcare.user");
-    localStorage.removeItem("bloomcare.profile");
+    // We can choose to remove the profile or not. For a better UX, we can keep it.
+    // localStorage.removeItem("bloomcare.profile");
     setUser(null);
-    setUserProfile(null);
+    // setUserProfile(null); // Keep profile info for when they log back in
     setLoading(false);
   };
 
-  const updatePhase = (phase: PregnancyPhase) => {
+  const updateProfile = (data: { phase: PregnancyPhase, displayName: string }) => {
     if (userProfile) {
-      const updatedProfile = { ...userProfile, phase };
+      const updatedProfile = { ...userProfile, ...data };
       localStorage.setItem("bloomcare.profile", JSON.stringify(updatedProfile));
       setUserProfile(updatedProfile);
     }
   };
 
-  const value = { user, userProfile, loading, login, logout, updatePhase, createUser };
+  const value = { user, userProfile, loading, login, logout, updateProfile, createUser };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
