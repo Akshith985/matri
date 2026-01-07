@@ -6,6 +6,9 @@ import { auth } from "@/lib/firebase/firebase";
 import { getUserProfile } from "@/lib/firebase/firestore";
 import type { UserProfile } from "@/lib/types";
 
+// This entire context is being deprecated in favor of the new FirebaseProvider.
+// It is kept temporarily to avoid breaking the build during refactoring.
+
 interface AuthContextType {
   user: User | null;
   userProfile: UserProfile | null;
@@ -29,7 +32,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (firebaseUser) {
         setUser(firebaseUser);
         const profile = await getUserProfile(firebaseUser.uid);
-        setUserProfile(profile);
+        // This is a temporary patch. The new `useAuth` hook will handle this more robustly.
+        if (profile) {
+            setUserProfile(profile as any);
+        } else {
+            // A simplified mock profile for now.
+             setUserProfile({ uid: firebaseUser.uid, email: firebaseUser.email!, phase: null });
+        }
+
       } else {
         setUser(null);
         setUserProfile(null);
