@@ -19,31 +19,26 @@ export default function PhaseSelector({ currentPhase, onPhaseChange }: PhaseSele
   const [localPhase, setLocalPhase] = useState(currentPhase);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const handleValueChange = async (phase: string) => {
+  const handleValueChange = (phase: string) => {
     if (!user || isUpdating) return;
 
     setIsUpdating(true);
     const newPhase = phase as PregnancyPhase;
     setLocalPhase(newPhase);
 
-    try {
-      await updateUserProfile(user.uid, { phase: newPhase });
-      onPhaseChange(newPhase); // Notify parent component
-      toast({
-        title: "Phase Updated",
-        description: `Your dashboard is now tailored for the ${newPhase}-Pregnancy phase.`,
-      });
-    } catch (error) {
-      console.error(error);
-      setLocalPhase(currentPhase); // Revert on error
-      toast({
-        variant: "destructive",
-        title: "Update Failed",
-        description: "Could not update your phase. Please try again.",
-      });
-    } finally {
-      setIsUpdating(false);
-    }
+    // Non-blocking fire-and-forget update
+    updateUserProfile(user.uid, { phase: newPhase });
+
+    onPhaseChange(newPhase); // Notify parent component optimistically
+    
+    toast({
+      title: "Phase Updated",
+      description: `Your dashboard is now tailored for the ${newPhase}-Pregnancy phase.`,
+    });
+
+    // We don't need to revert on error here, as the global handler will show the issue.
+    // The button state prevents re-submission.
+    setIsUpdating(false);
   };
 
   return (

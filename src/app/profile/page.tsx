@@ -41,26 +41,24 @@ export default function ProfilePage() {
     }
   }, [user, userProfile, authLoading, router]);
   
-  const onSubmit = async (data: z.infer<typeof profileSchema>) => {
+  const onSubmit = (data: z.infer<typeof profileSchema>) => {
     if (!user) return;
     setIsSubmitting(true);
-    try {
-      await updateUserProfile(user.uid, { phase: data.phase as PregnancyPhase });
-      toast({
-        title: "Profile Updated!",
-        description: "Your dashboard is now personalized.",
-      });
-      router.push("/dashboard");
-    } catch (error) {
-      console.error(error);
-      toast({
-        variant: "destructive",
-        title: "Update Failed",
-        description: "Could not update your profile. Please try again.",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    
+    // Non-blocking call
+    updateUserProfile(user.uid, { phase: data.phase as PregnancyPhase });
+    
+    toast({
+      title: "Profile Updated!",
+      description: "Your dashboard is now being personalized.",
+    });
+    // Optimistically navigate
+    router.push("/dashboard");
+    
+    // Note: No complex try/catch needed here for Firestore errors.
+    // The global error handler will catch and display permission errors.
+    // We can disable the button to prevent multiple submissions.
+    // A more robust solution might re-enable the button if the global handler catches an error.
   };
 
   if (authLoading || !user) {

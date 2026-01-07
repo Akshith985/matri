@@ -38,18 +38,20 @@ export default function SignupForm() {
     setLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
-      await createUserProfile(userCredential.user);
+      // This is now a non-blocking call.
+      createUserProfile(userCredential.user);
       toast({
         title: "Account Created",
         description: "Welcome to BloomCare! Let's set up your profile.",
       });
       router.push("/profile");
     } catch (error: any) {
-      console.error("Signup error:", error);
+      // This will catch auth errors, but Firestore errors are handled by the emitter.
+      console.error("Signup auth error:", error);
       toast({
         variant: "destructive",
         title: "Sign Up Failed",
-        description: error.message || "An unexpected error occurred.",
+        description: error.message || "An unexpected error occurred during account creation.",
       });
     } finally {
       setLoading(false);
