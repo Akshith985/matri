@@ -1,6 +1,7 @@
 "use client";
 
-import { LogOut, User as UserIcon } from "lucide-react";
+import Link from "next/link";
+import { LogOut, User as UserIcon, Calendar, MapPin } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -27,12 +28,23 @@ export default function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
         <div className="mr-4 flex">
-          <a className="mr-6 flex items-center space-x-2" href="/">
-            <span className="font-bold font-headline text-2xl">BloomCare</span>
-          </a>
+          <Link className="mr-6 flex items-center space-x-2" href="/">
+            <span className="font-bold font-headline text-2xl text-primary">BloomCare</span>
+          </Link>
+          <nav className="hidden md:flex items-center space-x-4 text-sm font-medium">
+            <Link href="/dashboard" className="text-foreground/70 hover:text-foreground">
+              Dashboard
+            </Link>
+            <Link href="/appointments" className="text-foreground/70 hover:text-foreground">
+              Appointments
+            </Link>
+            <Link href="/locations" className="text-foreground/70 hover:text-foreground">
+              Find Care
+            </Link>
+          </nav>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-2">
-          {user && (
+          {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -52,12 +64,23 @@ export default function Header() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => router.push('/appointments')}>
+                  <Calendar className="mr-2 h-4 w-4" />
+                  <span>My Appointments</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push('/locations')}>
+                  <MapPin className="mr-2 h-4 w-4" />
+                  <span>Find Care</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+          ) : (
+            <Button onClick={() => router.push('/login')} size="sm">Log In</Button>
           )}
         </div>
       </div>
