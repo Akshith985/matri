@@ -1,19 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useAuth as useFirebaseAuth } from "@/firebase";
-import { createUserWithEmailAndPassword } from "firebase/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
-import { createUserProfile } from "@/lib/firebase/firestore";
+import { useAuth } from "@/hooks/useAuth";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address." }),
@@ -21,10 +18,9 @@ const formSchema = z.object({
 });
 
 export default function SignupForm() {
-  const router = useRouter();
+  const { createUser } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const auth = useFirebaseAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -34,28 +30,27 @@ export default function SignupForm() {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
     setLoading(true);
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
-      // This is now a non-blocking call.
-      createUserProfile(userCredential.user);
-      toast({
-        title: "Account Created",
-        description: "Welcome to BloomCare! Let's set up your profile.",
-      });
-      router.push("/profile");
-    } catch (error: any) {
-      // This will catch auth errors, but Firestore errors are handled by the emitter.
-      console.error("Signup auth error:", error);
-      toast({
-        variant: "destructive",
-        title: "Sign Up Failed",
-        description: error.message || "An unexpected error occurred during account creation.",
-      });
-    } finally {
-      setLoading(false);
-    }
+    // Simulate network delay
+    setTimeout(() => {
+        try {
+            createUser(values.email);
+            toast({
+                title: "Account Created",
+                description: "Welcome to BloomCare! Let's set up your profile.",
+            });
+            // Navigation will be handled by the signup page's useEffect
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Sign Up Failed",
+                description: "An unexpected error occurred during account creation.",
+            });
+        } finally {
+            setLoading(false);
+        }
+    }, 500);
   };
 
   return (

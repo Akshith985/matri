@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useAuth } from "@/hooks/useAuth";
-import { updateUserProfile } from "@/lib/firebase/firestore";
 import { pregnancyPhases, type PregnancyPhase } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,7 +22,7 @@ const profileSchema = z.object({
 });
 
 export default function ProfilePage() {
-  const { user, userProfile, loading: authLoading } = useAuth();
+  const { user, userProfile, loading: authLoading, updatePhase } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,20 +44,14 @@ export default function ProfilePage() {
     if (!user) return;
     setIsSubmitting(true);
     
-    // Non-blocking call
-    updateUserProfile(user.uid, { phase: data.phase as PregnancyPhase });
+    updatePhase(data.phase as PregnancyPhase);
     
     toast({
       title: "Profile Updated!",
       description: "Your dashboard is now being personalized.",
     });
-    // Optimistically navigate
-    router.push("/dashboard");
     
-    // Note: No complex try/catch needed here for Firestore errors.
-    // The global error handler will catch and display permission errors.
-    // We can disable the button to prevent multiple submissions.
-    // A more robust solution might re-enable the button if the global handler catches an error.
+    router.push("/dashboard");
   };
 
   if (authLoading || !user) {

@@ -1,56 +1,85 @@
 "use client";
 
 import { createContext, useState, useEffect, type ReactNode } from "react";
-import { onAuthStateChanged, type User } from "firebase/auth";
-import { auth } from "@/lib/firebase/firebase";
-import { getUserProfile } from "@/lib/firebase/firestore";
-import type { UserProfile } from "@/lib/types";
-
-// This entire context is being deprecated in favor of the new FirebaseProvider.
-// It is kept temporarily to avoid breaking the build during refactoring.
+import type { UserProfile, PregnancyPhase } from "@/lib/types";
 
 interface AuthContextType {
-  user: User | null;
+  user: { email: string; uid: string } | null;
   userProfile: UserProfile | null;
   loading: boolean;
+  login: (email: string) => void;
+  logout: () => void;
+  updatePhase: (phase: PregnancyPhase) => void;
+  createUser: (email: string) => void;
 }
 
 export const AuthContext = createContext<AuthContextType>({
   user: null,
   userProfile: null,
   loading: true,
+  login: () => {},
+  logout: () => {},
+  updatePhase: () => {},
+  createUser: () => {},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<{ email: string; uid: string } | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      setLoading(true);
-      if (firebaseUser) {
-        setUser(firebaseUser);
-        const profile = await getUserProfile(firebaseUser.uid);
-        // This is a temporary patch. The new `useAuth` hook will handle this more robustly.
-        if (profile) {
-            setUserProfile(profile as any);
-        } else {
-            // A simplified mock profile for now.
-             setUserProfile({ uid: firebaseUser.uid, email: firebaseUser.email!, phase: null });
-        }
-
-      } else {
-        setUser(null);
-        setUserProfile(null);
+    try {
+      const storedUser = localStorage.getItem("bloomcare.user");
+      const storedProfile = localStorage.getItem("bloomcare.profile");
+      if (storedUser && storedProfile) {
+        setUser(JSON.parse(storedUser));
+        setUserProfile(JSON.parse(storedProfile));
       }
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
+    } catch (error) {
+        console.error("Failed to parse from localStorage", error);
+        localStorage.removeItem("bloomcare.user");
+        localStorage.removeItem("bloomcare.profile");
+    }
+    setLoading(false);
   }, []);
 
-  const value = { user, userProfile, loading };
+  const login = (email: string) => {
+    setLoading(true);
+    const mockUser = { email, uid: `mock-uid-${Date.now()}` };
+    const mockProfile = { email, uid: mockUser.uid, phase: null };
+    
+    localStorage.setItem("bloomcare.user", JSON.stringify(mockUser));
+    localStorage.setItem("bloomcare.profile", JSON.stringify(mockProfile));
+
+    setUser(mockUser);
+    setUserProfile(mockProfile);
+    setLoading(false);
+  };
+  
+  const createUser = (email: string) => {
+    // In this mock version, creating a user is the same as logging in.
+    login(email);
+  }
+
+  const logout = () => {
+    setLoading(true);
+    localStorage.removeItem("bloomcare.user");
+    localStorage.removeItem("bloomcare.profile");
+    setUser(null);
+    setUserProfile(null);
+    setLoading(false);
+  };
+
+  const updatePhase = (phase: PregnancyPhase) => {
+    if (userProfile) {
+      const updatedProfile = { ...userProfile, phase };
+      localStorage.setItem("bloomcare.profile", JSON.stringify(updatedProfile));
+      setUserProfile(updatedProfile);
+    }
+  };
+
+  const value = { user, userProfile, loading, login, logout, updatePhase, createUser };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

@@ -6,5 +6,4 @@ export interface UserProfile {
   uid: string;
   email: string;
   phase: PregnancyPhase | null;
-  userId?: string;
 }

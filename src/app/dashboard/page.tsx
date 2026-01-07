@@ -20,11 +20,20 @@ export default function DashboardPage() {
     }
   }, [user, userProfile, loading, router]);
 
-  if (loading || !user || !userProfile?.phase) {
+  if (loading || !user) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
+    );
+  }
+
+  if (!userProfile?.phase) {
+    return (
+        <div className="flex h-screen w-full items-center justify-center bg-background">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="ml-4">Redirecting to profile setup...</p>
+        </div>
     );
   }
   

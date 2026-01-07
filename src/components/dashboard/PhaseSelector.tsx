@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { updateUserProfile } from "@/lib/firebase/firestore";
 import { pregnancyPhases, type PregnancyPhase } from "@/lib/types";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -14,20 +13,16 @@ interface PhaseSelectorProps {
 }
 
 export default function PhaseSelector({ currentPhase, onPhaseChange }: PhaseSelectorProps) {
-  const { user } = useAuth();
+  const { updatePhase } = useAuth();
   const { toast } = useToast();
   const [localPhase, setLocalPhase] = useState(currentPhase);
-  const [isUpdating, setIsUpdating] = useState(false);
 
   const handleValueChange = (phase: string) => {
-    if (!user || isUpdating) return;
-
-    setIsUpdating(true);
     const newPhase = phase as PregnancyPhase;
     setLocalPhase(newPhase);
 
-    // Non-blocking fire-and-forget update
-    updateUserProfile(user.uid, { phase: newPhase });
+    // Update phase in mock auth context
+    updatePhase(newPhase);
 
     onPhaseChange(newPhase); // Notify parent component optimistically
     
@@ -35,10 +30,6 @@ export default function PhaseSelector({ currentPhase, onPhaseChange }: PhaseSele
       title: "Phase Updated",
       description: `Your dashboard is now tailored for the ${newPhase}-Pregnancy phase.`,
     });
-
-    // We don't need to revert on error here, as the global handler will show the issue.
-    // The button state prevents re-submission.
-    setIsUpdating(false);
   };
 
   return (
@@ -50,7 +41,7 @@ export default function PhaseSelector({ currentPhase, onPhaseChange }: PhaseSele
         <Tabs value={localPhase} onValueChange={handleValueChange} className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             {pregnancyPhases.map((phase) => (
-              <TabsTrigger key={phase} value={phase} disabled={isUpdating}>
+              <TabsTrigger key={phase} value={phase}>
                 {phase}
               </TabsTrigger>
             ))}
