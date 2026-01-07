@@ -8,10 +8,12 @@ import type { UserProfile, PregnancyPhase } from "@/lib/types";
 
 export async function createUserProfile(user: User): Promise<void> {
   const userProfileRef = doc(db, "users", user.uid, "profiles", "main");
+  // The UserProfile type from `backend.json` expects a `userId` field to be present.
   const userProfile: UserProfile = {
     uid: user.uid,
     email: user.email!,
     phase: null,
+    userId: user.uid,
   };
   await setDoc(userProfileRef, userProfile);
 }
